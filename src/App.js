@@ -24,20 +24,27 @@ import ButtonPanel from './components/ButtonPanel.jsx';
 export default class App extends React.Component {
   constructor() {
     super();
+    console.log(this.dealerHandElement);
     this.gs = new GameState(this);
+    this.state = {
+      dealerCards: this.gs.dealerCards,
+      playerCards: this.gs.playerCards
+    }
   }
 
   render() {
-    console.log("rendering wtf")
-    console.log(this.gs.player_cards);
     return (
       <div className="App">
         <header className="App-header">
-            <Hand isDealer={true} cards={this.gs.dealer_cards}/>
+            <Hand dealer={true} cards={this.state.dealerCards}
+            />
             <ButtonPanel gs={this.gs} />
-            <Hand isDealer={false} cards={this.gs.player_cards}/>
+            <Hand dealer={false} cards={this.state.playerCards}
+            />
         </header>
       </div>
     );
   }
+
+  //update
 }

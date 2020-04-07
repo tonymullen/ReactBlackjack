@@ -1,17 +1,15 @@
 import React from 'react';
-import GameController from '../services/GameState.js'
 import './ButtonPanel.css';
 
 export default class ButtonPanel extends React.Component {
   render() {
     const { gs } = this.props;
-    const gameState = 'Dealt'
       return (
           <div>
           {
            {
               'Start':
-                <button type="button" className="deal">
+                <button type="button" onClick={() => {gs.deal()}}  className="deal">
                   <strong>DEAL</strong>
                 </button>,
               'Dealt':
@@ -19,12 +17,12 @@ export default class ButtonPanel extends React.Component {
                   <button type="button" onClick={() => {gs.hit()}} className="hit">
                     <strong>HIT</strong>
                   </button>
-                  <button type="button" className="stay">
+                  <button type="button" onClick={() => {gs.stay()}} className="stay">
                     <strong>STAY</strong>
                   </button>
                 </>,
               'Dealing':
-                <strong>DEALING</strong>,
+                <div className="message"><strong>DEALING</strong></div>,
               'Stay':
                 <div className="message"><strong>DEALING</strong></div>,
               'Blackjack':
@@ -37,7 +35,7 @@ export default class ButtonPanel extends React.Component {
                 <div className="message"><strong>TIE</strong></div>,
               'Bust':
                 <div className="message"><strong>BUST</strong></div>
-           }[gameState]
+           }[gs.gameState]
           }
           </div>
       )
