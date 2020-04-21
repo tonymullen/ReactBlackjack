@@ -3,7 +3,7 @@ import Dealer from './Dealer.js';
 const RESTART_WAIT= 3000;
 const MESSSAGE_WAIT = 1000;
 
-export default class GameState {
+export default class GameController {
   constructor(app) {
     this.app = app;
     this._playerCards = [];
@@ -248,7 +248,9 @@ export default class GameState {
     this.dealerStays = false;
     this.gameState = 'Start'
     this.setUpSubscription();
-    //this.app.setState({});
+    if (this.app.mounted) {
+      this.app.setState({});
+    }
   }
 
   logLastGame() {
