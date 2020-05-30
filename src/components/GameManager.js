@@ -1,20 +1,43 @@
-import Dealer from './Dealer.js';
+import React from 'react';
+import { connect } from 'react-redux';
+import { setStatus, dealCard, resetGame } from '../actions';
+import Dealer from '../services/Dealer.js';
+import Hand from './Hand.jsx';
+import ButtonPanel from './ButtonPanel.jsx';
 
 const RESTART_WAIT= 3000;
 const MESSSAGE_WAIT = 1000;
 
-export default class GameController {
-  constructor(app) {
-    this.app = app;
-    this._playerCards = [];
-    this._dealerCards = [];
+class GameManager extends React.Component {
+  constructor(props) {
+    super(props);
     this.dealer = new Dealer();
     this.setup();
   }
 
+  setup() {
+    this.playerScore = 0;
+    this.dealerScore = 0;
+    this.playerHasAce = false;
+    this.dealerHasAce = false;
+    this.playerStays = false;
+    this.dealerStays = false;
+    this.setUpSubscription();
+  }
+
+  render() {
+    return (
+      <div>
+        <Hand dealer={true} />
+        <ButtonPanel gc={this} />
+        <Hand dealer={false} />
+      </div>
+    );
+  }
+
   deal() {
-    this._gameState = 'Dealing';
-    this.app.setState({});
+    const { setStatus } = this.props;
+    setStatus("Dealing");
     this.dealer.deal();
   }
 
@@ -24,29 +47,12 @@ export default class GameController {
 
   stay() {
     this.playerStays = true;
-    this.gameState = 'Stay';
     if ( this.dealerShouldHit() ) {
       this.dealer.dealToDealer();
     } else {
       this.dealerStays = true;
-      this.calculateGameState();
+      this.calculateGameStatus();
     }
-  }
-
-  get gameState() {
-    return this._gameState;
-  }
-
-  set gameState(s) {
-    this._gameState = s;
-  }
-
-  get playerCards() {
-    return this._playerCards;
-  }
-
-  get dealerCards() {
-    return this._dealerCards;
   }
 
   playerBust() {
@@ -62,13 +68,15 @@ export default class GameController {
   }
 
   playerBlackjack() {
-    return (this._playerCards.length === 2
+    const { playerCards } = this.props;
+    return (playerCards.length === 2
           && this.playerHasAce
           && this.playerScore === 11);
   }
 
   dealerBlackjack() {
-    return (this._playerCards.length === 2
+    const { playerCards } = this.props;
+    return (playerCards.length === 2
           && this.dealerHasAce
           && this.dealerScore === 11);
   }
@@ -78,60 +86,61 @@ export default class GameController {
   }
 
   firstCardsJustDealt() {
-    return (this._playerCards.length === 2 &&
-            this._dealerCards.length === 2);
+    const { playerCards, dealerCards } = this.props;
+    return (playerCards.length === 2 &&
+            dealerCards.length === 2);
   }
 
- dealerShouldHit() {
+  dealerShouldHit() {
     // dealer hits on soft 17 (ace & 6), stays on all 18+
     return ( this.playerStays &&
           (this.dealerScore < 17 ||
           (this.dealerHasAce && this.dealerScore < 7)));
   }
 
-  doFinalState(state) {
-    this.gameState = state;
-    this.app.setState({});
+  doFinalStatus(status) {
+    const { setStatus } = this.props;
+    setStatus(status);
     this.restart();
   }
 
-  calculateGameState() {
+  calculateGameStatus() {
+    const { setStatus } = this.props;
     // If exactly 4 cards have been dealt
     if (this.firstCardsJustDealt()) {
       // Blackjack
       if ( this.blackjack()) {
         if (!this.playerBlackjack()) {
           setTimeout(() => {
-            this.doFinalState('Lose');
+            this.doFinalStatus('Lose');
            }, MESSSAGE_WAIT)
         }
         else if (!this.dealerBlackjack()) {
           setTimeout(() => {
-            this.doFinalState('Win');
+            this.doFinalStatus('Win');
            }, MESSSAGE_WAIT)
         }
         else {
           setTimeout(() => {
-            this.doFinalState('Tie');
+            this.doFinalStatus('Tie');
            }, MESSSAGE_WAIT)
         }
       }
       // Bust
       else if ( this.bust() ) {
-        this.gameState = 'Bust';
-
+        setStatus('Bust');
         if(!this.playerBust()) {
           setTimeout(() => {
-            this.doFinalState('Win');
+            this.doFinalStatus('Win');
            }, MESSSAGE_WAIT)
         }
         if(!this.dealerBust()) {
           setTimeout(() => {
-            this.doFinalState('Lose');
+            this.doFinalStatus('Lose');
            }, MESSSAGE_WAIT)
         }
       } else {
-        this.gameState = 'Dealt';
+        setStatus('Dealt');
       }
       // In case both stay after 2 cards
       if ( this.playerStays &&  this.dealerStays ) {
@@ -148,24 +157,23 @@ export default class GameController {
 
       // Otherwise, if bust before staying
       else if ( this.playerBust() ) {
-        this.gameState = 'Bust';
+        setStatus('Bust');
         setTimeout(() => {
-          this.doFinalState('Lose');
+          this.doFinalStatus('Lose');
         }, MESSSAGE_WAIT)
       } else if ( this.dealerBust() ) {
         setTimeout(() => {
-          this.doFinalState('Win');
+          this.doFinalStatus('Win');
         }, MESSSAGE_WAIT)
       }
     }
-    this.app.setState({});
   }
 
   scoreAfterBothStay() {
     if ( this.dealerBust() ) {
-      this.gameState = 'Bust';
+      setStatus('Bust');
       setTimeout(() => {
-        this.doFinalState('Win');
+        this.doFinalStatus('Win');
       }, MESSSAGE_WAIT)
     } else {
       if ( this.playerScore <= 11 && this.playerHasAce ) {
@@ -175,17 +183,18 @@ export default class GameController {
         this.dealerScore += 10;
       }
       if ( this.playerScore > this.dealerScore ) {
-        this.doFinalState('Win');
+        this.doFinalStatus('Win');
       } else if ( this.playerScore < this.dealerScore ) {
-        this.doFinalState('Lose');
+        this.doFinalStatus('Lose');
       } else {
-        this.doFinalState('Tie');
+        this.doFinalStatus('Tie');
       }
     }
     this.restart();
   }
 
   setUpSubscription() {
+    const { dealCard } = this.props;
     // Subscribe to the deal$ observable
     this.dealer.deal$.subscribe(c => {
       // Every time an item is received from deal$
@@ -196,7 +205,7 @@ export default class GameController {
 
         // Dealer card received
         if (c[1][0] === 'd') {
-          this._dealerCards.push(card);
+          dealCard(true, card);
           if (card.value === 1) { this.dealerHasAce = true }
           this.dealerScore += card.value;
 
@@ -206,68 +215,66 @@ export default class GameController {
             }, MESSSAGE_WAIT);
           } else if ( this.playerStays ) {
             this.dealerStays = true;
-            this.calculateGameState();
+            this.calculateGameStatus();
           }
 
         // Player card received
         } else if ( c[1][0] === 'p') {
-          this._playerCards.push(card);
+          dealCard(false, card);
           if (card.value === 1) { this.playerHasAce = true }
           this.playerScore += card.value;
         }
         if (this.blackjack()){
-          this.gameState = 'Blackjack';
+          setStatus('Blackjack');
         }
         if (this.bust()){
-          this.gameState = 'Bust';
+          setStatus('Bus');
         }
-
-        // Update game state
-        this.calculateGameState();
+        this.calculateGameStatus();
       }
     });
   }
 
   restart() {
+    const { resetGame } = this.props;
     this.logLastGame();
     setTimeout(() => {
       this.dealer.freshDeck();
       // clear the arrays while keeping the reference
-      this._playerCards.length = 0;
-      this._dealerCards.length = 0;
+      // this._playerCards.length = 0;
+      // this._dealerCards.length = 0;
+      resetGame();
       this.setup();
     }, RESTART_WAIT);
   }
 
-  setup() {
-    this.playerScore = 0;
-    this.dealerScore = 0;
-    this.playerHasAce = false;
-    this.dealerHasAce = false;
-    this.playerStays = false;
-    this.dealerStays = false;
-    this.gameState = 'Start'
-    this.setUpSubscription();
-    if (this.app.mounted) {
-      this.app.setState({});
-    }
-  }
-
   logLastGame() {
+    const { status, dealerCards, playerCards } = this.props;
     console.log('Game Over')
     console.log(`Dealer cards: `);
-    this._dealerCards.forEach(c => {
+    dealerCards.forEach(c => {
       console.log(`    ${c.face} of ${c.suit}s`);
     })
     console.log(`Player cards: `);
-    this._playerCards.forEach(c => {
+    playerCards.forEach(c => {
       console.log(`    ${c.face} of ${c.suit}s`);
     })
     console.log(`Dealer total: ${this.dealerScore}`);
     console.log(`Player total: ${this.playerScore}`);
-    console.log(`Final state: ${this.gameState}`);
+    console.log(`Final state: ${status}`);
     console.log();
   }
 }
 
+const mapStateToProps = state => ({
+  status: state.status,
+  dealerCards: state.dealerCards,
+  playerCards: state.playerCards,
+});
+const mapDispatchToProps = dispatch => ({
+  setStatus: status => dispatch(setStatus(status)),
+  dealCard: (dealer, card) => dispatch(dealCard(dealer, card)),
+  resetGame: () => dispatch(resetGame()),
+});
 
+export default connect(mapStateToProps, mapDispatchToProps)(GameManager);

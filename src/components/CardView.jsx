@@ -3,16 +3,15 @@ import Flippy, { FrontSide, BackSide } from 'react-flippy';
 
 const images = require.context('../assets/png/1x', true);
 
-export default function CardView({ card:{face, suit, flip} }) {
+const CardView = ({ card:{face, suit, flip} }) => (
+  <Flippy isFlipped={flip} >
+    <FrontSide>
+      <img src={images(`./${face}_${suit}.png`)} alt="" />
+    </FrontSide>
+    <BackSide>
+      <img src={images(`./back-blue.png`)} alt="" />
+    </BackSide>
+  </Flippy>
+);
 
-  return (
-    <Flippy isFlipped={flip} >
-      <FrontSide>
-        <img src={images(`./${face}_${suit}.png`)} alt="" />
-      </FrontSide>
-      <BackSide>
-        <img src={images(`./back-blue.png`)} alt="" />
-      </BackSide>
-    </Flippy>
-  )
-}
+export default CardView;

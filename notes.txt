@@ -7,3 +7,8 @@ Modify index.html and App.css
 
 add assets directory (images) to public
 
+
+
+Add redux
+
+Add store.js

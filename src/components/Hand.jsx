@@ -1,10 +1,11 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import CardView from './CardView.jsx';
 import '../style/Hand.css';
 import placeholder from '../assets/placeholder.png';
 
 
-export default function Hand ({ dealer, cards}) {
+const Hand = ({ dealer, cards }) => {
   const handContent =
     cards.length === 0 ?
       <div className='hand'>
@@ -27,4 +28,16 @@ export default function Hand ({ dealer, cards}) {
       {handContent}
     </div>
   )
+};
+
+const selectCards = (state, dealer) => {
+    if (dealer) return state.dealerCards
+    else return state.playerCards
 }
+
+const mapStateToProps = (state, ownProps) => ({
+  cards: selectCards(state, ownProps.dealer),
+});
+
+export default connect(mapStateToProps)(Hand);
+
