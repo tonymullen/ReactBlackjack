@@ -10,7 +10,7 @@ const Hand = ({ dealer, cards }) => {
     cards.length === 0 ?
       <div className='hand'>
         <div>
-          <img src={placeholder} alt="" />
+          <img src={placeholder} alt="Placeholder. No cards dealt yet." />
         </div>
       </div>
     :
@@ -24,7 +24,7 @@ const Hand = ({ dealer, cards }) => {
   }
 
   return (
-    <div className='hand-container'>
+    <div className='hand-container' role='hand container' aria-label={(dealer?'dealer':'player') + ' cards'}>
       {handContent}
     </div>
   )
