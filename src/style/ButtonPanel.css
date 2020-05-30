@@ -47,9 +47,10 @@ div.message {
     font-size: 28px;
     height: 40px;
     margin: 2px;
+
 }
 
 div.message * {
-    vertical-align: middle;
+    line-height: 44px;
 }
 

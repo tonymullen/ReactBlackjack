@@ -5,7 +5,6 @@ import Card from './Card.js';
 export default class Dealer {
   constructor () {
     this.deck = [];
-    this.freshDeck();
   }
 
   freshDeck() {

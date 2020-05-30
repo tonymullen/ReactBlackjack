@@ -4,6 +4,7 @@ div.hand-container {
   background-color: green;
   padding: 5px;
   margin: 5px auto 5px auto;
+  display: inline-block;
 }
 
 div.hand {

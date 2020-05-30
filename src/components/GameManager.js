@@ -22,6 +22,7 @@ class GameManager extends React.Component {
     this.dealerHasAce = false;
     this.playerStays = false;
     this.dealerStays = false;
+    this.dealer.freshDeck();
     this.setUpSubscription();
   }
 
@@ -239,10 +240,6 @@ class GameManager extends React.Component {
     const { resetGame } = this.props;
     this.logLastGame();
     setTimeout(() => {
-      this.dealer.freshDeck();
-      // clear the arrays while keeping the reference
-      // this._playerCards.length = 0;
-      // this._dealerCards.length = 0;
       resetGame();
       this.setup();
     }, RESTART_WAIT);

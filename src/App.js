@@ -17,8 +17,11 @@ export default class App extends React.Component {
     return (
       <div className="App">
         <header className="App-header">
-          <GameManager />
+          <h1>
+            Blackjack!
+          </h1>
         </header>
+        <GameManager />
       </div>
     );
   }
