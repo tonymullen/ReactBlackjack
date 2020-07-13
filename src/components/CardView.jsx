@@ -1,8 +1,7 @@
 import React from 'react';
 import Flippy, { FrontSide, BackSide } from 'react-flippy';
+import { suits, faces } from '../services/CardValues.js'
 
-const suits = ['heart', 'diamond', 'spade', 'club'];
-const faces =  [ '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'jack', 'queen', 'king'];
 const images = {}
 suits.forEach(suit => {
   faces.forEach(face => {
@@ -10,8 +9,6 @@ suits.forEach(suit => {
   })
 })
 const cardBack = require('../assets/png/1x/back-blue.png');
-
-//const images = require.context('../assets/png/1x', true);
 
 export default function CardView({ card:{face, suit, flip} }) {
 

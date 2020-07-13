@@ -1,5 +1,6 @@
 import { Subject, from, timer, zip  } from 'rxjs';
 import { concat } from 'rxjs/operators';
+import { suits, faces } from './CardValues.js'
 import Card from './Card.js';
 
 export default class Dealer {
@@ -9,9 +10,6 @@ export default class Dealer {
   }
 
   freshDeck() {
-    const suits = ['heart', 'diamond', 'spade', 'club'];
-    const faces =  [ '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'jack', 'queen', 'king'];
-
     // this.deal$ = new Observable();
     this.distribution$ = new Subject(); // strings
     this.trigger$ = new Subject(); // booleans
